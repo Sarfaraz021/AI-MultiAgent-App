@@ -8,6 +8,8 @@ from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessageChunk, SystemMessage
 from langgraph.prebuilt import create_react_agent
+from langgraph.checkpoint.sqlite import SqliteSaver
+
 import os
 
 os.environ["OPENAI_API_KEY"] = "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"
@@ -43,6 +45,16 @@ model_with_tools = chat_model.bind_tools(tools)
 
 
 # Creating a simple agent
+def execute(agent, query, thread_id="a1b2c3"):
+   config = {"configurable": {"thread_id": thread_id}}
+   response = agent.invoke({'messages': [HumanMessage(query)]}, config=config)
+   for message in response["messages"]:
+       print(
+           f"{message.__class__.__name__}: {message.content}"
+       )  # Print message class name and its content
+       print("-" * 20, end="\n")
+   return response
+
 system_prompt = SystemMessage(
    """
    You are a helpful bot named Chandler. Your task is to explain topics
@@ -55,6 +67,14 @@ system_prompt = SystemMessage(
    and return found video links.
    """
 )
+memory = SqliteSaver.from_conn_string(':agent_history:')
+# agent = create_react_agent(chat_model, tools, state_modifier=system_prompt)
 
-agent = create_react_agent(chat_model, tools, state_modifier=system_prompt)
-response = execute(agent, query='Explain the Fourier Series visually.')
+agent = create_react_agent(chat_model, tools, checkpointer=memory, state_modifier=system_prompt)
+
+# response = execute(agent, query='Explain the Fourier Series visually.')
+
+# Let’s test it again:
+response = execute(
+   agent, query="Explain how to oil a bike's chain using a YouTube video", thread_id="123"
+)
