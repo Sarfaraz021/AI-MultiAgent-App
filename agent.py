@@ -18,7 +18,7 @@ import os
 #######################
 # Environment Setup
 #######################
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "Your OpenAI API Key Here"
 
 #######################
 # Tool Initialization
@@ -124,5 +124,5 @@ except Exception as e:
 
 # Let’s test it again:
 response = execute(
-   agent, query="what is blockchain", thread_id="123"
+   agent, query="Show me a visualization of DNA structure", thread_id="123"
 )
