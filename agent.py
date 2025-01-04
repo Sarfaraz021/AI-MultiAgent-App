@@ -124,5 +124,5 @@ except Exception as e:
 
 # Let’s test it again:
 response = execute(
-   agent, query="Explain how to oil a bike's chain using a YouTube video", thread_id="123"
+   agent, query="Show me a visualization of DNA structure", thread_id="123"
 )
