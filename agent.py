@@ -46,14 +46,18 @@ model_with_tools = chat_model.bind_tools(tools)
 
 # Creating a simple agent
 def execute(agent, query, thread_id="a1b2c3"):
-   config = {"configurable": {"thread_id": thread_id}}
-   response = agent.invoke({'messages': [HumanMessage(query)]}, config=config)
-   for message in response["messages"]:
-       print(
-           f"{message.__class__.__name__}: {message.content}"
-       )  # Print message class name and its content
-       print("-" * 20, end="\n")
-   return response
+    try:
+        config = {"configurable": {"thread_id": thread_id}}
+        response = agent.invoke({'messages': [HumanMessage(query)]}, config=config)
+        for message in response["messages"]:
+            print(
+                f"{message.__class__.__name__}: {message.content}"
+            )  # Print message class name and its content
+            print("-" * 20, end="\n")
+        return response
+    except Exception as e:
+        print(f"Error executing agent: {e}")
+        raise
 
 system_prompt = SystemMessage(
    """
@@ -67,10 +71,18 @@ system_prompt = SystemMessage(
    and return found video links.
    """
 )
-memory = SqliteSaver.from_conn_string(':agent_history:')
-# agent = create_react_agent(chat_model, tools, state_modifier=system_prompt)
+memory = SqliteSaver(database_path=":memory:")  # or use a file path like "agent_history.db"
 
-agent = create_react_agent(chat_model, tools, checkpointer=memory, state_modifier=system_prompt)
+try:
+    agent = create_react_agent(
+        llm=chat_model,
+        tools=tools,
+        checkpointer=memory,
+        state_modifier=system_prompt
+    )
+except Exception as e:
+    print(f"Error creating agent: {e}")
+    raise
 
 # response = execute(agent, query='Explain the Fourier Series visually.')
 
