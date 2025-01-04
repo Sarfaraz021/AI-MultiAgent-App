@@ -41,7 +41,7 @@ model_with_tools = chat_model.bind_tools(tools)
 #    HumanMessage("Can you generate an image of a mountain bike?")
 # ])
 # print(f"Text response: {response.content}")
-# print(f"Tools used in the response: {response.tool_calls}")
+# print(f"Tools used in the response: {response.tool_calls }")
 
 
 # Creating a simple agent
@@ -71,13 +71,11 @@ system_prompt = SystemMessage(
    and return found video links.
    """
 )
-memory = SqliteSaver(database_path=":memory:")  # or use a file path like "agent_history.db"
 
 try:
     agent = create_react_agent(
-        llm=chat_model,
+        model=chat_model,  # Changed back to model from llm
         tools=tools,
-        checkpointer=memory,
         state_modifier=system_prompt
     )
 except Exception as e:
